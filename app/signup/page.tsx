@@ -74,7 +74,7 @@ const handleSignup = async (userIdentity: string, password: string) => {
         <div className="login-form-head">
           <h4>Sign Up</h4>
           <p>
-            Kindly sign up to get your <b>SkytAssist account</b> 
+            Kindly sign up to get your <b>SkytCall Agent account</b> 
           </p>
         </div>
 

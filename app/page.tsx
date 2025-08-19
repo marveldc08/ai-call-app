@@ -16,7 +16,7 @@ export default function Home() {
       {/* Navbar */}
       <header className={styles.navbar}>
         <h1 className={styles.logo}>
-          Skyt<span className={styles.logoAccent}>Assist</span>
+          Skyt<span className={styles.logoAccent}>Call Agent</span>
         </h1>
         <nav className={styles.navLinks}>
           {/* <a href="#features">Features</a> */}
@@ -35,7 +35,7 @@ export default function Home() {
           className={styles.heroTitle}
         >
           Smarter Calls with{" "}
-          <span className={styles.highlight}>Skyt Assist</span>
+          <span className={styles.highlight}>Skyt Call Agent</span>
         </motion.h2>
         <p className={styles.heroSubtitle}>
           Automate handling your calls, sort contacts, and highlight
@@ -74,7 +74,7 @@ export default function Home() {
             },
             {
               icon: <Bot size={28} color="#6366f1" />,
-              title: "Smart Assistance",
+              title: "Smart Call Agentance",
               desc: "Ask the AI to clarify details or schedule follow-ups.",
             },
           ].map((f, i) => (

@@ -29,7 +29,9 @@ export default function DashboardPage() {
     const [user, setUser] = useLocalStorageObject("user", null);
     const [token, setToken] = useLocalStorageObject("token", null);
     const [userName, setUserName] = useState("");
-
+      const [showModal, setShowModal] = useState(false);
+      const [loading, setLoading] = useState(false)
+    const [file, setFile] = useState<File | null>(null)
     // useEffect(() => {
     //   if (user) {
     //     setUserName(`${user.firstName} ${user.lastName}`);
@@ -38,8 +40,20 @@ export default function DashboardPage() {
     //   }
     // }, [user]);
 
-  
-  
+    const handleUploadFile = (file: File | null) => {
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      setLoading(true);
+      // Simulate an API call
+      setTimeout(() => {
+        console.log("File uploaded:", file.name);
+        setLoading(false);
+      }, 2000);
+    }
+
   return (
     <div className='page-container'>
       <Header pageName="Dashboard" moduleName="Dashboard"  userName={userName} />
@@ -190,6 +204,23 @@ export default function DashboardPage() {
                 ))}
               </div>
 
+              <div className='row'>
+                <div className='col-12'>
+                    <div className="form-row">
+                        <div className="col-md-3 mb-3">&nbsp;</div>
+                        <div className="col-md-3 mb-3">&nbsp;</div>
+                        <div className="col-md-3 mb-3">&nbsp;</div>
+                        <div className="col-md-3 mb-3">
+                            <button className="btn btn-primary btn-block" style={{height: "4rem"}} type="submit" onClick={()=>setShowModal(true)}>
+                                <i className="fa fa-upload"></i> Upload Contacts
+                            </button>
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+              </div>
+
               
 
               <div className="row">
@@ -326,6 +357,67 @@ export default function DashboardPage() {
         </div>
       </div>
 
+    {showModal && (
+        <div className="modal fade show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+        <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+            <div className="modal-header">
+                <h5 className="modal-title">Upload Contacts</h5>
+                <button
+                type="button"
+                className="close"
+                onClick={() => setShowModal(false)}
+                >
+                <span>&times;</span>
+                </button>
+            </div>
+            <div className="modal-body">
+                <form>
+    
+                <div className="form-row">
+                    <div className="col-md-12 mb-3">
+                    {/* <label>Select Contact File</label> */}
+                        <input
+                            style={{height: "18em"}}
+                            type="file"
+                            className="form-control hidden"
+                            onChange={(e) => {
+                            if (e.target.files && e.target.files[0]) {
+                                setFile(e.target.files[0]);
+                            }
+                            }}
+                            required
+                        />
+                        <label
+                            htmlFor="fileInput"
+                            className="flex flex-col items-center justify-center border-2 border-dashed border-gray-400 rounded-md p-6 w-full text-center cursor-pointer hover:bg-gray-50"
+                            style={{position: "relative", top:"-11em"}}
+                        >
+                            <i className="fa fa-upload text-3xl text-gray-600 mb-2" />
+                            <span className="text-gray-600">
+                            {file ? file.name : "Click to choose a file"}
+                            </span>
+                        </label>
+              
+                    </div>
+                </div>
+            
+                </form>
+            </div>
+            <div className="modal-footer">
+                <button
+                type="submit"
+                className="btn btn-primary btn-block w-100"
+                disabled={loading}
+                onClick={() => handleUploadFile(file)}
+                >
+                <i className="fa fa-upload"></i>&nbsp; {loading ? "Uploading" : "Upload"}
+                </button>
+            </div>
+            </div>
+        </div>
+        </div>
+    )}
     </div>
   );
 }

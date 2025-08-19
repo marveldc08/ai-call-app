@@ -40,9 +40,9 @@ import "react-toastify/dist/ReactToastify.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Oriental Dashboard Login",
-  description: "Login to access the Oriental dashboard",
-  
+  title: "Skyt Call Agent",
+  description: "Automated calls || Contact sort || Reporting",
+
 };
 
 export default function RootLayout({
