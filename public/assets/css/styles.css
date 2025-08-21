@@ -63,6 +63,15 @@
     transition: padding-left 0.3s ease 0s;
 }
 
+.collapsed-page-container{
+    width: 100%;
+    height: auto;
+    min-height: auto;
+    padding-left: 80px;
+    -webkit-transition: padding-left 0.3s ease 0s;
+    transition: padding-left 0.3s ease 0s;
+}
+
 .sbar_collapsed.page-container {
     padding-left: 0;
 }

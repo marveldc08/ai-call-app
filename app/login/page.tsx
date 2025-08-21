@@ -24,9 +24,11 @@ export default function LoginPage() {
 
 
 const handleLogin = async (userIdentity: string, password: string) => {
-//   setLoading(true);
-  setError("");
-        router.push("/dashboard");
+
+    setError("");
+    setLoading(true);
+    router.push("/dashboard");
+    
 
 //   try {
 //     const response = await fetch("/api/auth/login", {

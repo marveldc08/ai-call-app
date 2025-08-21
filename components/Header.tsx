@@ -7,12 +7,15 @@ import MetisMenu from 'metismenujs';
 import Loader from './Loader';
 import styles from '../app/Landing.module.css'; 
 import { color } from 'framer-motion';
+import { useLocalStorageObject } from '../hooks/useLocalStorage';
 
-export default function Header({ pageName, moduleName, userName }: { pageName: string, moduleName: string, userName?: string }) {
+export default function Header({ pageName, moduleName, userName }: { pageName: string, moduleName: string, userName?: string, }) {
   const menuRef = useRef<HTMLUListElement>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [menuName, setMenuName] = useState<string | null>(null);
-    const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false); 
+  const [collapsed, setCollapsed] = useLocalStorageObject("collapsed", {isCollapsed: true});
+  const [user, setUser] = useLocalStorageObject("user", null)
 
   const toggleMenu = (menuName: string)=>{
     setMenuName((prev)=> (prev === menuName ? null : menuName))
@@ -28,6 +31,37 @@ export default function Header({ pageName, moduleName, userName }: { pageName: s
     }
   }, []);
 
+//   useEffect(() => {
+//     if (sidebarOpen) {
+//       document.body.classList.add("collapseBody");
+      
+//     } else {
+//       document.body.classList.remove("collapseBody");
+//       localStorage.removeItem('collapsed');
+//     }
+// }, [sidebarOpen]);
+   
+  useEffect(() => {
+    if (sidebarOpen) {
+      document.body.classList.add("sidebar-collapsed");
+    } else {
+      document.body.classList.remove("sidebar-collapsed");
+    }
+  }, [sidebarOpen]);
+
+  // const toggleSidebar = () => {
+  //   if (sidebarOpen) {
+  //      setSidebarOpen(false);
+  //      setCollapsed(collapsed);
+
+  //   } else {
+  //      setSidebarOpen(true);
+  //      setCollapsed(collapsed);
+  //   }
+   
+  // };
+
+
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
     document.body.classList.toggle('sidebar-collapsed');
@@ -37,7 +71,7 @@ export default function Header({ pageName, moduleName, userName }: { pageName: s
     <div>
       {/* {loading && <Loader />} */}
       {/* Sidebar */}
-      <div className={`sidebar-menu ${sidebarOpen ? '' : 'collapsed'}`}>
+      <div className={`sidebar-menu `}>
         <div className="sidebar-header">
           <div className="logo">
             <Link href="/">
@@ -54,10 +88,13 @@ export default function Header({ pageName, moduleName, userName }: { pageName: s
                   <Link href="/dashboard" ><i className="ti-dashboard"></i><span>Dashboard</span></Link>
                 </li>
                 <li>
+                  <Link href="#" ><i className="ti-user"></i><span>Manage Users</span></Link>
+                </li>
+                <li>
                   <Link href="#" ><i className="ti-dashboard"></i><span>Manage Calls</span></Link>
                 </li>
                 <li>
-                  <Link href="#" ><i className="ti-user"></i><span>Manage Contacts</span></Link>
+                  <Link href="#" ><i className="fa fa-address-book-o"></i><span>Manage Contacts</span></Link>
                 </li>
                 <li>
                   <Link href="#" ><i className="ti-book"></i><span>Audit</span></Link>

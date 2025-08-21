@@ -25,13 +25,19 @@ const xLabels = [
   'Page G',
 ];
 
+
+
 export default function DashboardPage() {
     const [user, setUser] = useLocalStorageObject("user", null);
     const [token, setToken] = useLocalStorageObject("token", null);
+    const [collapsed, setCollapsed] = useLocalStorageObject("collapsed", null);
     const [userName, setUserName] = useState("");
-      const [showModal, setShowModal] = useState(false);
-      const [loading, setLoading] = useState(false)
+    const [showModal, setShowModal] = useState(false);
+    const [showCallModal, setShowCallModal] = useState(false);
+    const [loading, setLoading] = useState(false)
     const [file, setFile] = useState<File | null>(null)
+    const [isCollapsed, setIsCollapsed] = useState(false);
+   
     // useEffect(() => {
     //   if (user) {
     //     setUserName(`${user.firstName} ${user.lastName}`);
@@ -39,6 +45,38 @@ export default function DashboardPage() {
     //     console.log("No user data found.");
     //   }
     // }, [user]);
+
+      useEffect(() => {
+        const stored = localStorage.getItem("collapsed");
+        if (stored === "true") {
+            setIsCollapsed(true);
+        } else {
+            setIsCollapsed(false);
+        }
+        
+      }, []);
+
+
+
+    const [schedules, setSchedules] = useState([{ date: "", time: ""}]);
+   
+
+    const addSchedule = (e: React.FormEvent) => {
+        e.preventDefault();
+        setSchedules([...schedules, { date: "", time: "" }]);
+    };
+
+
+    const updateSchedule = (index: number, field: 'date' | 'time', value: string) => {
+    const newSchedules = [...schedules];
+    newSchedules[index][field] = value;
+    setSchedules(newSchedules);
+    };
+
+
+    const removeSchedule = (index: number) => {
+    setSchedules(schedules.filter((_, i) => i !== index));
+    };
 
     const handleUploadFile = (file: File | null) => {
       if (!file) return;
@@ -55,9 +93,9 @@ export default function DashboardPage() {
     }
 
   return (
-    <div className='page-container'>
+    <div className={` page-container `}>
       <Header pageName="Dashboard" moduleName="Dashboard"  userName={userName} />
-      <div id="wrapper" >
+      <div id="wrapper">
         <div id="content-wrapper" className="d-flex flex-column">
           <div id="content">
             <div className="container-fluid">
@@ -101,7 +139,6 @@ export default function DashboardPage() {
                     border: "info",
                     icon: "phone",
                     text: "text-info",
-                    
                   },
                   {
                     title: "Total Confirmed",
@@ -144,7 +181,6 @@ export default function DashboardPage() {
                     border: "info",
                     icon: "clock-o",
                     text: "text-info",
-                    
                   },
                   {
                     title: "Total Number of Calls",
@@ -209,10 +245,15 @@ export default function DashboardPage() {
                     <div className="form-row">
                         <div className="col-md-3 mb-3">&nbsp;</div>
                         <div className="col-md-3 mb-3">&nbsp;</div>
-                        <div className="col-md-3 mb-3">&nbsp;</div>
                         <div className="col-md-3 mb-3">
                             <button className="btn btn-primary btn-block" style={{height: "4rem"}} type="submit" onClick={()=>setShowModal(true)}>
                                 <i className="fa fa-upload"></i> Upload Contacts
+                            </button>
+                            
+                        </div>
+                        <div className="col-md-3 mb-3">
+                            <button className="btn btn-success btn-block" style={{height: "4rem"}} type="submit" onClick={()=>setShowCallModal(true)}>
+                                <i className="fa fa-clock-o"></i> Schedule Calls
                             </button>
                             
                         </div>
@@ -310,7 +351,7 @@ export default function DashboardPage() {
                        Agents{" "}
                         {/* <span className="small"> - Last 10</span> */}
                         <span className="small float-right">
-                          <Link href="/period/setup" className="btn-link">3
+                          <Link href="/period/setup" className="btn-link">
                           
                             <i className="fa fa-forward" /> &nbsp;View More
                           </Link>
@@ -412,6 +453,76 @@ export default function DashboardPage() {
                 onClick={() => handleUploadFile(file)}
                 >
                 <i className="fa fa-upload"></i>&nbsp; {loading ? "Uploading" : "Upload"}
+                </button>
+            </div>
+            </div>
+        </div>
+        </div>
+    )}
+    {showCallModal && (
+        <div className="modal fade show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+        <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+            <div className="modal-header">
+                <h5 className="modal-title">Schedule Call Date</h5>
+                <button
+                type="button"
+                className="close"
+                onClick={() => setShowCallModal(false)}
+                >
+                <span>&times;</span>
+                </button>
+            </div>
+            <div className="modal-body">
+                <form>
+                    <div className="form-row">
+                        <div className="col-md-12 mb-3">
+                            <label>Select Date and Time</label>
+                            <div className="space-y-4 max-h-72 overflow-y-auto pr-2">
+                                {schedules.map((schedule, index) => (
+                                    <div key={index} className="flex items-center gap-2">
+                                        <input
+                                        type="date"
+                                        value={schedule.date}
+                                        onChange={(e) => updateSchedule(index, "date", e.target.value)}
+                                        className="border rounded-lg px-2 py-1 w-1/2 cursor-pointer"
+                                        />
+                                        <input
+                                        type="time"
+                                        value={schedule.time}
+                                        onChange={(e) => updateSchedule(index, "time", e.target.value)}
+                                        className="border rounded-lg px-2 py-1 w-1/2 cursor-pointer"
+                                        />
+                                        <button
+                                        onClick={() => removeSchedule(index)}
+                                        className="text-red-500 hover:text-red-700"
+                                        >
+                                        <i className="fa fa-trash text-3xl text-red-600 mb-2" />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className='flex justify-end mt-4'>
+                                <button
+                                    onClick={addSchedule}
+                                    className="flex items-center justify-self-end-safe gap-1 pl-36 pr-36 btn btn-success mt-4"
+                                    >
+                                        <i className="fa fa-plus text-3xl text-white-600 mb-2" /> 
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div className="modal-footer">
+                <button
+                type="submit"
+                className="btn btn-success btn-block w-100"
+                disabled={loading}
+                onClick={() => handleUploadFile(file)}
+                >
+                <i className="fa fa-clock-o"></i>&nbsp; {loading ? "Scheduling" : "Schedule Calls"}
                 </button>
             </div>
             </div>
