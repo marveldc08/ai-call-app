@@ -31,17 +31,8 @@ export default function Header({ pageName, moduleName, userName }: { pageName: s
     }
   }, []);
 
-//   useEffect(() => {
-//     if (sidebarOpen) {
-//       document.body.classList.add("collapseBody");
-      
-//     } else {
-//       document.body.classList.remove("collapseBody");
-//       localStorage.removeItem('collapsed');
-//     }
-// }, [sidebarOpen]);
    
-  useEffect(() => {
+  useEffect(() => { 
     if (sidebarOpen) {
       document.body.classList.add("sidebar-collapsed");
     } else {
@@ -49,23 +40,23 @@ export default function Header({ pageName, moduleName, userName }: { pageName: s
     }
   }, [sidebarOpen]);
 
-  // const toggleSidebar = () => {
-  //   if (sidebarOpen) {
-  //      setSidebarOpen(false);
-  //      setCollapsed(collapsed);
-
-  //   } else {
-  //      setSidebarOpen(true);
-  //      setCollapsed(collapsed);
-  //   }
-   
-  // };
-
-
   const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-    document.body.classList.toggle('sidebar-collapsed');
+    if (sidebarOpen) {
+       setSidebarOpen(false);
+       setCollapsed(collapsed);
+
+    } else {
+       setSidebarOpen(true);
+       setCollapsed(collapsed);
+    }
+   
   };
+
+
+  // const toggleSidebar = () => {
+  //   setSidebarOpen(!sidebarOpen);
+  //   document.body.classList.toggle('sidebar-collapsed');
+  // };
 
   return (
     <div>

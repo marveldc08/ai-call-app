@@ -94,7 +94,7 @@ export default function DashboardPage() {
 
   return (
     <div className={` page-container `}>
-      <Header pageName="Dashboard" moduleName="Dashboard"  userName={userName} />
+      <Header pageName="Dashboard" moduleName="Dashboard" userName={userName} />
       <div id="wrapper">
         <div id="content-wrapper" className="d-flex flex-column">
           <div id="content">
@@ -105,92 +105,124 @@ export default function DashboardPage() {
               <div className="row">
                 {[
                   {
-                    title: "Total Contacts",
-                    value: "10,000",
+                    title: "Total Uploaded",
+                    value: 10000,
                     border: "primary",
-                    icon: "address-book-o",
+                    icon: "upload",
                     text: "text-primary",
                   },
                   {
-                    title: "contact Reached",
-                    value: "7,000",
+                    title: "Total Valid Contacts",
+                    value: 70,
                     border: "success",
                     icon: "user-circle",
                     text: "text-success",
                   },
                   {
-                    title: "Total Contact Agent",
-                    value: "5",
+                    title: "Contacts Reached",
+                    value: 900,
                     border: "info",
                     icon: "headphones",
                     text: "text-info",
                     isProgress: false,
                   },
                   {
-                    title: "Average Agent Call",
-                    value: "500 Minutes",
+                    title: "Number of Confirmed",
+                    value: 50,
+                    border: "warning",
+                    icon: "check",
+                    text: "text-warning",
+                  },
+                  {
+                    title: "Average Minute Per Call",
+                    value: "1.02 Mins",
                     border: "warning",
                     icon: "clock-o",
                     text: "text-warning",
                   },
                    {
-                    title: "Total Calls",
-                    value: "20,000",
+                    title: "Total Valid Contacts",
+                    value: "20% valid",
                     border: "info",
                     icon: "phone",
                     text: "text-info",
                   },
                   {
-                    title: "Total Confirmed",
-                    value: "6,000",
-                    border: "primary",
-                    icon: "check-square",
-                    text: "text-primary",
-                  },
-                  {
-                    title: "Total Percentage Confirmed",
-                    value: "18%",
-                    border: "warning",
-                    icon: "percent",
-                    text: "text-warning",
-                  },
-                  {
-                    title: "Average Minute Per Call",
-                    value: "1.02 Minutes",
+                    title: "Contacts Reached",
+                    value: "90%",
                     border: "success",
-                    icon: "clock-o",
+                    icon: "headphones",
                     text: "text-success",
+                    isProgress: false,
                   },
                   {
-                    title: "Total Uploaded Contact",
-                    value: "12,000",
+                    title: "Number of Confirmed",
+                    value: "50%",
                     border: "primary",
-                    icon: "upload",
+                    icon: "check",
                     text: "text-primary",
                   },
                   {
-                    title: "Total Valid Contact",
-                    value: "10,000",
+                    title: "Total Calls",
+                    value: 600,
                     border: "success",
-                    icon: "check",
+                    icon: "phone",
                     text: "text-success",
                   },
                   {
                     title: "Total Call Time",
-                    value: "3,000 Minutes",
+                    value: "6,000",
+                    border: "primary",
+                    icon: "clock-o",
+                    text: "text-primary",
+                  },
+                  {
+                    title: "Average Call Time per person",
+                    value: "30 Minutes",
                     border: "info",
                     icon: "clock-o",
                     text: "text-info",
                   },
                   {
-                    title: "Total Number of Calls",
-                    value: "18",
+                    title: "Total Cost",
+                    value: "$18,000",
                     border: "warning",
-                    icon: "volume-control-phone",
+                    icon: "dollar",
                     text: "text-warning",
-                  }
+                  },
+                  {
+                    title: "Total Voice Calls",
+                    value: "180",
+                    border: "warning",
+                    icon: "phone",
+                    text: "text-warning",
+                  },
+
+                  {
+                    title: "Total Confirmed Calls",
+                    value: "1,000",
+                    border: "primary",
+                    icon: "upload",
+                    text: "text-primary",
+                  },
+                  {
+                    title: " Average Voice Calls Confirmed",
+                    value: "1,000",
+                    border: "success",
+                    icon: "check",
+                    text: "text-success",
+                  },
+                  {
+                    title: "Total Cost",
+                    value: "$1,000",
+                    border: "info",
+                    icon: "dollar",
+                    text: "text-info",
+                  },
+                 
+
                 ].map((card, index) => (
-                  <div key={index} className="col-xl-3 col-md-6 mb-4 ">
+                  <div key={index} className="col-xl-3 col-md-6 mb-4">
                     <div
                       className={`card border-left-${card.border} shadow h-100 py-2 px-4`}
                     >
@@ -331,9 +363,7 @@ export default function DashboardPage() {
                                 <td>0901234567</td>
                                 <td>3.2 miniutes</td>
                                 <td>Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius ea quam optio pariatur culpa temporibus, officia ratione placeat iusto hic quo ducimus repellendus repudiandae</td>
-                                <td>5</td>
-                            
-                            
+                                <td>5</td>                            
                               </tr>
                             ))}
                           </tbody>
