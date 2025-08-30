@@ -6,7 +6,7 @@ import Button from '@mui/material/Button';
 import Popover from '@mui/material/Popover';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import Header from '../../components/Header'
-import { PieChart } from '@mui/x-charts/PieChart';
+import { toast } from 'react-toastify';
 import { useLocalStorageObject } from '../../hooks/useLocalStorage';
 import Image from "next/image";
 
@@ -76,19 +76,60 @@ export default function DashboardPage() {
         setSchedules(schedules.filter((_, i) => i !== index));
       };
 
-    const handleUploadFile = (file: File | null) => {
+    const handleSubmitSchedule = async () => {
+      console.log("got here 1")
+      try {
+        const res = await fetch("/api/schedules", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ schedules }),
+        });
+        console.log("got here")
+        const data = await res.json();
+        console.log("API response:", data);
+
+        if (res.ok) {
+          toast.success("Schedules saved!");
+           console.error(res);
+        } else {
+          toast.error("Error: " + data.error);
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to save schedules");
+      }
+    };
+
+
+    const handleUploadFile = async (file: File | null) => {
       if (!file) return;
 
       const formData = new FormData();
       formData.append("file", file);
 
       setLoading(true);
-      // Simulate an API call
-      setTimeout(() => {
-        console.log("File uploaded:", file.name);
-        setLoading(false);
-      }, 2000);
+      try {
+        const res = await fetch("/api/uploads", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await res.json();
+        console.log("Upload response:", data);
+
+        if (res.ok) {
+          toast.success("File uploaded: " + data.fileUrl);
+        } else {
+          toast.error("Upload failed: " + data.error);
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Error uploading file");
+      }
     }
+
+
+
 
   return (
     <div className={` page-container `}>
@@ -500,7 +541,7 @@ export default function DashboardPage() {
                 </button>
             </div>
             <div className="modal-body">
-               <form>
+               <form onSubmit={handleSubmitSchedule}>
                   <div className="form-row">
                     <div className="col-md-12 mb-3">
                       <label>Select Call Interval</label>
@@ -551,7 +592,7 @@ export default function DashboardPage() {
                 type="submit"
                 className="btn btn-success btn-block w-100"
                 disabled={loading}
-                onClick={() => handleUploadFile(file)}
+                onClick={handleSubmitSchedule}
                 >
                 <i className="fa fa-clock-o"></i>&nbsp; {loading ? "Scheduling" : "Schedule Calls"}
                 </button>

@@ -12,7 +12,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [userIdentity, setuserIdentity] = useState("");
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false); 
   const [error, setError] = useState("");       
 
@@ -21,48 +21,54 @@ export default function LoginPage() {
 
  
 
+  const handleSignup = async(email: string, password: string, confirmPassword: string) => {
+    setLoading(true)
+    setError("")
+  
+      try {
+        if (!password || !confirmPassword) {
+          toast.warning("Please fill in both password fields.");
+          return;
+        }
 
+        if (password !== confirmPassword) {
+          toast.error("Passwords do not match.");
+          return;
+        }
 
+        if (/\s/.test(email)) {
+          toast.warning("User Name should not include space");
+          return;
+        }
 
-const handleSignup = async (userIdentity: string, password: string) => {
-//   setLoading(true);
-  setError("");
-        router.push("/login");
+        const response = await fetch("/api/auth/create-password", {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify({ email, password, confirmPassword }),
+        });
 
-//   try {
-//     const response = await fetch("/api/auth/login", {
-//       method: "POST",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify({ userIdentity, password }),
-//     });
+        const data = await response.json();
 
-   
+        if (response.ok) {
+          console.log({ data });
+          toast.success("Successfully created password");
+          router.push("/login");
+        } else {
+          // 👇 don't throw, instead handle the error cleanly
+          toast.error(data.message || "Login failed");
+        }
 
-//     const data = await response.json();
+      } catch (err) {
+        console.error("Error during form submission:", err);
+        toast.error("Error during form submission.");
+      } finally {
+        setLoading(false); // ✅ this runs whether success or failure
+      };
 
-//     if (response.ok) {
-
-//       setToken(data.data.token ?? null);     
-//       setUser(data.data.user ?? null);  
-
-      
-//       toast.success("Successfully logged in")
-//       router.push("/dashboard");
-      
-//     } else {
-//       throw new Error(data.message || "Login failed");
-//     }
-
-//   } catch (err: unknown) {
-//     if (err instanceof Error) {
-//       setError(err.message || "Something went wrong");
-//     } else {
-//       setError("Something went wrong");
-//     }
-//   } finally {
-//     setLoading(false);
-//   }
-}; 
+  };
 
 
   return (
@@ -80,13 +86,13 @@ const handleSignup = async (userIdentity: string, password: string) => {
 
         <div className="login-form-body">
 
-          <div className={`form-gp ${userIdentity ? "active" : ""}`}>
+          <div className={`form-gp ${email ? "active" : ""}`}>
                 <input
                 
                   type="text"
-                  id="userIdentity"
-                  value={userIdentity}
-                  onChange={(e) => setuserIdentity(e.target.value)}
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                 />
                 <i className="ti-email" /> 
@@ -130,7 +136,7 @@ const handleSignup = async (userIdentity: string, password: string) => {
             <button
               id="form_submit"
               type="button"
-              onClick={() => handleSignup(userIdentity, password)}
+              onClick={() => handleSignup(email, password, confirmPassword)}
               className="btn btn-primary btn-block"
               disabled={loading}
             >

@@ -10,6 +10,7 @@ import {toast} from "react-toastify";
 
 export default function LoginPage() {
   const router = useRouter();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [userIdentity, setuserIdentity] = useState("");
   const [loading, setLoading] = useState(false); 
@@ -23,7 +24,7 @@ export default function LoginPage() {
 
 
 
-const handleLogin = async (userIdentity: string, password: string) => {
+const handleLogin = async (email: string, password: string) => {
 
     setError("");
     setLoading(true);
@@ -34,7 +35,7 @@ const handleLogin = async (userIdentity: string, password: string) => {
 //     const response = await fetch("/api/auth/login", {
 //       method: "POST",
 //       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify({ userIdentity, password }),
+//       body: JSON.stringify({ email, password }),
 //     });
 
    
@@ -82,17 +83,17 @@ const handleLogin = async (userIdentity: string, password: string) => {
 
         <div className="login-form-body">
 
-          <div className={`form-gp ${userIdentity ? "active" : ""}`}>
+          <div className={`form-gp ${email ? "active" : ""}`}>
                 <input
                 
-                  type="text"
+                  type="email"
                   id="userIdentity"
-                  value={userIdentity}
+                  value={email}
                   onChange={(e) => setuserIdentity(e.target.value)}
                   required
                 />
                 <i className="ti-email" /> 
-                <label htmlFor="email">User Name</label>
+                <label htmlFor="email">email</label>
                 <div className="text-danger"></div>
           </div>
 
@@ -139,7 +140,7 @@ const handleLogin = async (userIdentity: string, password: string) => {
             <button
               id="form_submit"
               type="button"
-              onClick={() => handleLogin(userIdentity, password)}
+              onClick={() => handleLogin(email, password)}
               className="btn btn-primary btn-block"
               disabled={loading}
             >
