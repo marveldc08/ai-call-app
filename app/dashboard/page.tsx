@@ -57,26 +57,24 @@ export default function DashboardPage() {
       }, []);
 
 
+     const [schedules, setSchedules] = useState<{ interval: string }[]>([
+        { interval: "" },
+      ]);
 
-    const [schedules, setSchedules] = useState([{ date: "", time: ""}]);
-   
-
-    const addSchedule = (e: React.FormEvent) => {
+      const addSchedule = (e: React.FormEvent) => {
         e.preventDefault();
-        setSchedules([...schedules, { date: "", time: "" }]);
-    };
+        setSchedules([...schedules, { interval: "" }]);
+      };
 
+      const updateSchedule = (index: number, value: string) => {
+        const newSchedules = [...schedules];
+        newSchedules[index].interval = value;
+        setSchedules(newSchedules);
+      };
 
-    const updateSchedule = (index: number, field: 'date' | 'time', value: string) => {
-    const newSchedules = [...schedules];
-    newSchedules[index][field] = value;
-    setSchedules(newSchedules);
-    };
-
-
-    const removeSchedule = (index: number) => {
-    setSchedules(schedules.filter((_, i) => i !== index));
-    };
+      const removeSchedule = (index: number) => {
+        setSchedules(schedules.filter((_, i) => i !== index));
+      };
 
     const handleUploadFile = (file: File | null) => {
       if (!file) return;
@@ -102,7 +100,7 @@ export default function DashboardPage() {
               <div className="row">&nbsp;</div>
 
               {/* Row of Cards */}
-              <div className="row">
+              <div className="row no-gutters">
                 {[
                   {
                     title: "Total Uploaded",
@@ -222,9 +220,9 @@ export default function DashboardPage() {
                  
 
                 ].map((card, index) => (
-                  <div key={index} className="col-xl-3 col-md-6 mb-4">
+                  <div key={index} className="col-xl-3 col-md-6 mb-2">
                     <div
-                      className={`card border-left-${card.border} shadow h-100 py-2 px-4`}
+                      className={`card border-left-${card.border} shadow h-100 mx-1`}
                     >
                       <div className="card-body">
                         <div className="row no-gutters align-items-center">
@@ -235,7 +233,7 @@ export default function DashboardPage() {
                               {card.title}
                             </div>
                             {!card.isProgress ? (
-                              <div className="h5 mb-0 font-weight-bold text-gray-800">
+                              <div className="h6 mb-0 text-[7px] font-weight-bold text-gray-800">
                                 {card.value}
                               </div>
                             ) : (
@@ -272,7 +270,7 @@ export default function DashboardPage() {
                 ))}
               </div>
 
-              <div className='row'>
+              <div className='row mt-4'>
                 <div className='col-12'>
                     <div className="form-row">
                         <div className="col-md-3 mb-3">&nbsp;</div>
@@ -298,14 +296,12 @@ export default function DashboardPage() {
 
               <div className="row">
                 {/* Timeline area */}
-                <div className="col-xl-9 col-ml-8 col-lg-8 mt-5">
+                <div className="col-xl-12 col-ml-12 col-lg-12 mt-5">
                   <div className="card border-left-primary">
                     <div className="card-body">
                       <h4 className="header-title">Call Records</h4>
                       <form className="needs-validation" noValidate>
-
-                        <div className="form-row">
-                           
+                        <div className="form-row">                          
                           <div className="col-md-3 mb-3">
                             <button className="btn btn-outline-primary btn-block"type="submit">
                               <i className="fa fa-check"></i> Contact Reached
@@ -373,13 +369,13 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                {/* Lifting Periods */}
-                <div className="col-xl-3 col-ml-4 col-lg-4 mt-5">
+              
+                {/* <div className="col-xl-3 col-ml-4 col-lg-4 mt-5">
                   <div className="card border-left-primary">
                     <div className="card-body">
                       <h4 className="header-title">
                        Agents{" "}
-                        {/* <span className="small"> - Last 10</span> */}
+                        <span className="small"> - Last 10</span>
                         <span className="small float-right">
                           <Link href="/period/setup" className="btn-link">
                           
@@ -419,8 +415,8 @@ export default function DashboardPage() {
                       </div>
                     </div>
                   </div>
-                </div>
-                {/* End of Lifting Periods */}
+                </div> */}
+              
               </div>
 
             </div>
@@ -504,46 +500,51 @@ export default function DashboardPage() {
                 </button>
             </div>
             <div className="modal-body">
-                <form>
-                    <div className="form-row">
-                        <div className="col-md-12 mb-3">
-                            <label>Select Date and Time</label>
-                            <div className="space-y-4 max-h-72 overflow-y-auto pr-2">
-                                {schedules.map((schedule, index) => (
-                                    <div key={index} className="flex items-center gap-2">
-                                        <input
-                                        type="date"
-                                        value={schedule.date}
-                                        onChange={(e) => updateSchedule(index, "date", e.target.value)}
-                                        className="border rounded-lg px-2 py-1 w-1/2 cursor-pointer"
-                                        />
-                                        <input
-                                        type="time"
-                                        value={schedule.time}
-                                        onChange={(e) => updateSchedule(index, "time", e.target.value)}
-                                        className="border rounded-lg px-2 py-1 w-1/2 cursor-pointer"
-                                        />
-                                        <button
-                                        onClick={() => removeSchedule(index)}
-                                        className="text-red-500 hover:text-red-700"
-                                        >
-                                        <i className="fa fa-trash text-3xl text-red-600 mb-2" />
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
+               <form>
+                  <div className="form-row">
+                    <div className="col-md-12 mb-3">
+                      <label>Select Call Interval</label>
+                      <div className="space-y-4 max-h-72 overflow-y-auto pr-2">
+                        {schedules.map((schedule, index) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <select
+                              value={schedule.interval}
+                              onChange={(e) => updateSchedule(index, e.target.value)}
+                              className="border rounded-lg px-2 py-1 w-full cursor-pointer"
+                            >
+                              <option value="">-- Select Interval --</option>
+                              <option value="5">Every 5 Minutes</option>
+                              <option value="10">Every 10 Minutes</option>
+                              <option value="15">Every 15 Minutes</option>
+                              <option value="30">Every 30 Minutes</option>
+                              <option value="60">Every 1 Hour</option>
+                              <option value="120">Every 2 Hours</option>
+                              <option value="daily">Once a Day</option>
+                            </select>
 
-                            <div className='flex justify-end mt-4'>
-                                <button
-                                    onClick={addSchedule}
-                                    className="flex items-center justify-self-end-safe gap-1 pl-36 pr-36 btn btn-success mt-4"
-                                    >
-                                        <i className="fa fa-plus text-3xl text-white-600 mb-2" /> 
-                                </button>
-                            </div>
-                        </div>
+                            <button
+                              type="button"
+                              onClick={() => removeSchedule(index)}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <i className="fa fa-trash text-2xl text-red-600" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="flex justify-end mt-4">
+                        <button
+                          onClick={addSchedule}
+                          className="flex items-center gap-1 px-6 py-2 btn btn-success"
+                        >
+                          <i className="fa fa-plus text-xl text-white" /> Add Interval
+                        </button>
+                      </div>
                     </div>
+                  </div>
                 </form>
+
             </div>
             <div className="modal-footer">
                 <button

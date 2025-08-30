@@ -6,7 +6,7 @@ import Image from 'next/image';
 import MetisMenu from 'metismenujs';
 import Loader from './Loader';
 import styles from '../app/Landing.module.css'; 
-import { color } from 'framer-motion';
+
 import { useLocalStorageObject } from '../hooks/useLocalStorage';
 
 export default function Header({ pageName, moduleName, userName }: { pageName: string, moduleName: string, userName?: string, }) {
@@ -67,7 +67,7 @@ export default function Header({ pageName, moduleName, userName }: { pageName: s
           <div className="logo">
             <Link href="/">
               <h1 style={{color: "white"}} className={styles.logo}>Skyt<span className={styles.logoAccent}>Assist</span>
-        </h1>
+              </h1>
             </Link>
           </div>
         </div>
@@ -100,11 +100,11 @@ export default function Header({ pageName, moduleName, userName }: { pageName: s
       <div className="header-area">
         <div className="row align-items-center">
           <div className="col-md-6 col-sm-8 clearfix">
-            <div className="nav-btn pull-left" onClick={toggleSidebar} style={{ cursor: "pointer" }}>
+            {/* <div className="nav-btn pull-left" onClick={toggleSidebar} style={{ cursor: "pointer" }}>
               <span></span>
               <span></span>
               <span></span>
-            </div>
+            </div> */}
             <div className="search-box pull-left"></div>
           </div>
           <div className="col-md-6 col-sm-4 clearfix">
@@ -148,7 +148,7 @@ export default function Header({ pageName, moduleName, userName }: { pageName: s
               </ul>
             </div>
           </div>
-          <div className="col-sm-6 clearfix">
+          <div className="col-sm-6 clearfix border-rounded">
             <div className="user-profile pull-right">
               <Image className="avatar user-thumb" src="/assets/images/author/avatar.png" alt="avatar" width={40} height={40} />
               <h4 className="user-name dropdown-toggle" data-toggle="dropdown">
