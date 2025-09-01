@@ -148,8 +148,14 @@ export default function Header({ pageName, moduleName, userName }: { pageName: s
               </ul>
             </div>
           </div>
-          <div className="col-sm-6 clearfix border-rounded">
-            <div className="user-profile pull-right">
+          <div className="col-sm-6 row flex justify-end-safe align-items-center gap-4 border border-amber-700">
+            <div className="breadcrumbs-area clearfix">
+              <h4 className="page-title pull-left m-0 px-1">{80}</h4>
+              <ul className="breadcrumbs pull-left">
+                <li><span>Credits Left</span></li>
+              </ul>
+            </div>
+            <div className="user-profile pull-right ">
               <Image className="avatar user-thumb" src="/assets/images/author/avatar.png" alt="avatar" width={40} height={40} />
               <h4 className="user-name dropdown-toggle" data-toggle="dropdown">
                 {userName || "Tobi Mark"} <i className="fa fa-angle-down"></i>
