@@ -5,14 +5,14 @@ export async function GET(req: NextRequest) {
 
 
   try {
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-    const token = req.headers.get("authorization");
+    const API_BASE_URL = process.env.API_BASE_URL;
+    // const token = req.headers.get("authorization");
 
     const apiRes = await fetch(`${API_BASE_URL}/Call/get-events`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: token ?? "",
+        // Authorization: token ?? "",
       },
     });
 

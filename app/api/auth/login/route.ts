@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   const { email, password } = body;
 
   try {
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+    const API_BASE_URL = process.env.API_BASE_URL;
 
     const apiRes = await fetch(`${API_BASE_URL}/User/login`, {
       method: "POST",
@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
       ? await apiRes.json()
       : { message: await apiRes.text() };
 
+      console.log(data)
     return NextResponse.json(data, { status: apiRes.status });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
