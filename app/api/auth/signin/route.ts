@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   const { name, email, password, confirmPassword } = body;
 
   try {
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+    const API_BASE_URL = process.env.API_BASE_URL;
     // const token =  req.headers.get("authorization")
 
     const apiRes = await fetch(`${API_BASE_URL}/User/register`, {

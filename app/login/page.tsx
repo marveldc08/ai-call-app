@@ -28,11 +28,9 @@ const handleLogin = async (email: string, password: string) => {
 
     setError("");
     setLoading(true);
-    router.push("/dashboard");
-    
-
+    const BASE_URL =  'http://musharealestate-001-site5.jtempurl.com'
   try {
-    const response = await fetch("/api/auth/login", {
+    const response = await fetch(`${BASE_URL}/User/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
@@ -43,13 +41,14 @@ const handleLogin = async (email: string, password: string) => {
     const data = await response.json();
 
     if (response.ok) {
-
+      console.log(data)
       setToken(data.data.token ?? null);     
       setUser(data.data ?? null);  
 
       
       toast.success("Successfully logged in")
       router.push("/dashboard");
+     
       
     } else {
       throw new Error(data.message || "Login failed");
@@ -57,7 +56,7 @@ const handleLogin = async (email: string, password: string) => {
 
   } catch (err: unknown) {
     if (err instanceof Error) {
-      setError(err.message || "Something went wrong");
+      toast.error("Something went wrong")
     } else {
       setError("Something went wrong");
     }

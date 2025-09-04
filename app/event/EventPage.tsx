@@ -6,6 +6,7 @@ import Header from '../../components/Header'
 import { toast } from 'react-toastify';
 import { useLocalStorageObject } from '../../hooks/useLocalStorage';
 import Image from "next/image";
+import {useRouter} from 'next/navigation';
 
 
 
@@ -48,6 +49,7 @@ export default function EventPage() {
     const searchParams = useSearchParams();
     const eventId = searchParams.get("eventId")
     const parsedEventId = eventId ? parseInt(eventId, 10) : 0;
+    const router = useRouter()
 
 
       useEffect(() => {
@@ -94,6 +96,7 @@ export default function EventPage() {
             // setEventPeriod([[startDate, endDate.join(", ")]])
           if (!token) {
             console.warn("Token is not available yet.");
+            router.push('/login')
             return;
           }
       

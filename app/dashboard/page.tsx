@@ -43,9 +43,9 @@ export default function DashboardPage() {
     
           return data;
         } catch (error) {
-          console.error("Error fetching roles:", error);
+          console.error("Error fetching events:", error);
           if (error instanceof Error) {
-            console.error("Error fetching roles:", error.message, error.stack);
+            console.error("Error fetching events:", error.message, error.stack);
           }
           throw error; // Re-throw the error to handle it in the calling function
     
@@ -56,17 +56,18 @@ export default function DashboardPage() {
           // setEventPeriod([[startDate, endDate.join(", ")]])
         if (!token) {
           console.warn("Token is not available yet.");
+          router.push("/login")
           return;
         }
-        
     
         const fetchEvents = async () => {
           const eventData = await getEvents();
           if (eventData) {
             console.log("Fetched events:", eventData);
             setEvents(eventData.data.data);
+            // setEvents(eventData.data ?? []);
           }
-        };
+        }
     
         fetchEvents();
     
@@ -160,22 +161,10 @@ export default function DashboardPage() {
                               <th>Title </th>
                               <th>Location</th>
                               <th>Periods</th>
-                              <th></th>
+                              <th>Actions</th>
                             
                             </tr>
                           </thead>
-                          {/* <tbody>
-                            {Array.from({ length: 6 }).map((_, index) => (
-                              <tr key={index}>
-                                <td>An Evening of Blessings</td>
-                                <td>12/09/2025</td>
-                                <td>01/09/2025</td>
-                                <td>
-                                     <button className="btn btn-sm btn-primary" onClick={()=> router.push(`/event?eventId=${index}`)} >View <i className={`fa fa-eye  text-gray-300`} /></button>
-                                </td>                     
-                              </tr>
-                            ))}
-                          </tbody> */}
 
                             <tbody>
                                 {events.length === 0 ? (
