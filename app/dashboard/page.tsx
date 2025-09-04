@@ -6,6 +6,11 @@ import CallHistoryChart from '@/components/CallHistoryChart';
 
 
 
+type User = {
+  userName: string;
+  // Add other properties if needed, e.g. firstName, lastName, etc.
+};
+
 export default function DashboardPage() {
 
     const [userName, setUserName] = useState("");
@@ -124,7 +129,6 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-
 
     </div>
   );

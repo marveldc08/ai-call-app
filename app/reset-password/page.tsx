@@ -24,30 +24,24 @@ export default function LoginPage() {
 
 
 
-const handleLogin = async (email: string, password: string) => {
+const handleReset = async (email: string) => {
 
     setError("");
     setLoading(true);
-    router.push("/dashboard");
-    
-
+    router.push("/login");
   try {
-    const response = await fetch("/api/auth/login", {
+    const response = await fetch("/api/auth/reset-password", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email }),
     });
 
-   
 
     const data = await response.json();
 
     if (response.ok) {
-
-      setToken(data.data.token ?? null);     
       setUser(data.data ?? null);  
 
-      
       toast.success("Successfully logged in")
       router.push("/dashboard");
       
@@ -74,10 +68,9 @@ const handleLogin = async (email: string, password: string) => {
       <div className="login-box ptb--100 " >
       <form className="bg-white p-4 rounded shadow-lg">
         <div className="login-form-head">
-          <h4>Sign In</h4>
+          <h4>Reset Password</h4>
           <p>
-            Kindly sign in with your <b>SkytCall Agent account</b> to
-            access the dashboard.
+            Provide your email to reset your <b>SkytCall Agent account</b> password.
           </p>
         </div>
 
@@ -96,50 +89,12 @@ const handleLogin = async (email: string, password: string) => {
                 <div className="text-danger"></div>
           </div>
 
-          {/* Password Field */}
-
-          <div className={`form-gp ${password ? "active" : ""}`}>
-                <input
-                
-                  type="password"
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                <i className="ti-lock" />
-                <label htmlFor="password">Password</label>
-                <div className="text-danger"></div>
-              </div>
-
-          {/* Remember Me and Reset Password */}
-          <div className="row mb-4 rmber-area">
-            <div className="col-6">
-              <div className="custom-control custom-checkbox mr-sm-2">
-                <input
-                  type="checkbox"
-                  className="custom-control-input"
-                  id="customControlAutosizing"
-                />
-                <label
-                  className="custom-control-label"
-                  htmlFor="customControlAutosizing"
-                >
-                  Remember Me
-                </label>
-              </div>
-            </div>
-            <div className="col-6 text-right">
-              <Link href="/reset-password">Reset your Password?</Link>
-            </div>
-          </div>
-
           {/* Submit Button */}
           <div className="submit-btn-area">
             <button
               id="form_submit"
               type="button"
-              onClick={() => handleLogin(email, password)}
+              onClick={() => handleReset(email)}
               className="btn btn-primary btn-block"
               disabled={loading}
             >

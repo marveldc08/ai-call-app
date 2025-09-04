@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import MetisMenu from 'metismenujs';
 import Loader from './Loader';
@@ -20,6 +21,8 @@ export default function Header({ pageName, moduleName, userName }: { pageName: s
   const toggleMenu = (menuName: string)=>{
     setMenuName((prev)=> (prev === menuName ? null : menuName))
   }
+
+  const pathName = usePathname();
 
   useEffect(() => {
     if (menuRef.current) {
@@ -75,19 +78,22 @@ export default function Header({ pageName, moduleName, userName }: { pageName: s
           <div className="menu-inner">
             <nav>
               <ul className="metismenu" id="menu" ref={menuRef}>
-                <li className="active">
+                <li className={pathName === "/dashboard" ? "active" : ""}>
                   <Link href="/dashboard" ><i className="ti-dashboard"></i><span>Dashboard</span></Link>
                 </li>
-                <li>
+                <li className={pathName === "/manage-events" ? "active" : ""}>
+                  <Link href="/manage-events" ><i className="ti-user"></i><span>Manage Events</span></Link>
+                </li>
+                <li className={pathName === "/manage-users" ? "active" : ""}>
                   <Link href="#" ><i className="ti-user"></i><span>Manage Users</span></Link>
                 </li>
-                <li>
+                <li className={pathName === "/manage-calls" ? "active" : ""}>
                   <Link href="#" ><i className="ti-dashboard"></i><span>Manage Calls</span></Link>
                 </li>
-                <li>
+                <li className={pathName === "/manage-contacts" ? "active" : ""}>
                   <Link href="#" ><i className="fa fa-address-book-o"></i><span>Manage Contacts</span></Link>
                 </li>
-                <li>
+                <li className={pathName === "/schedules" ? "active" : ""}>
                   <Link href="#" ><i className="ti-book"></i><span>Audit</span></Link>
                 </li>
               </ul>

@@ -10,6 +10,7 @@ import {toast} from "react-toastify";
 
 export default function LoginPage() {
   const router = useRouter();
+  const [name, setName] = useState(""); 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [email, setEmail] = useState("");
@@ -21,7 +22,7 @@ export default function LoginPage() {
 
  
 
-  const handleSignup = async(email: string, password: string, confirmPassword: string) => {
+  const handleSignup = async(name: string, email: string, password: string, confirmPassword: string) => {
     setLoading(true)
     setError("")
   
@@ -41,13 +42,13 @@ export default function LoginPage() {
           return;
         }
 
-        const response = await fetch("/api/auth/create-password", {
+        const response = await fetch("/api/auth/signin", {
           method: "POST",
           headers: { 
             "Content-Type": "application/json",
-            "authorization": `Bearer ${token}`,
+            // "authorization": `Bearer ${token}`,
           },
-          body: JSON.stringify({ email, password, confirmPassword }),
+          body: JSON.stringify({name, email, password, confirmPassword }),
         });
 
         const data = await response.json();
@@ -86,17 +87,30 @@ export default function LoginPage() {
 
         <div className="login-form-body">
 
-          <div className={`form-gp ${email ? "active" : ""}`}>
+          <div className={`form-gp ${name ? "active" : ""}`}>
                 <input
                 
                   type="text"
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+                <i className="ti-email" /> 
+                <label htmlFor="email">Name</label>
+                <div className="text-danger"></div>
+          </div>
+          <div className={`form-gp ${email ? "active" : ""}`}>
+                <input
+                
+                  type="email"
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
                 <i className="ti-email" /> 
-                <label htmlFor="email">User Name</label>
+                <label htmlFor="email">Email</label>
                 <div className="text-danger"></div>
           </div>
 
@@ -136,7 +150,7 @@ export default function LoginPage() {
             <button
               id="form_submit"
               type="button"
-              onClick={() => handleSignup(email, password, confirmPassword)}
+              onClick={() => handleSignup(name, email, password, confirmPassword)}
               className="btn btn-primary btn-block"
               disabled={loading}
             >

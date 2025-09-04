@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { callType, schedule, startDate, endDate } = body;
+  const { name, location, periods } = body;
 
   try {
     const API_BASE_URL = process.env.API_BASE_URL;
@@ -14,10 +14,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const apiRes = await fetch(`${API_BASE_URL}/Call/ScheduleCall`, {
+    const apiRes = await fetch(`${API_BASE_URL}/Call/event`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ callType, schedule, startDate, endDate }),
+      body: JSON.stringify({ name, location, periods }),
     });
 
     const contentType = apiRes.headers.get("content-type");

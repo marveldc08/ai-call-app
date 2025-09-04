@@ -1,10 +1,9 @@
 // app/api/events/route.ts
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
+export async function DELETE(req: NextRequest) {
   const body = await req.json();
-  const { callType, schedule, startDate, endDate } = body;
-
+  const eventId = body.id;
   try {
     const API_BASE_URL = process.env.API_BASE_URL;
     if (!API_BASE_URL) {
@@ -14,10 +13,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const apiRes = await fetch(`${API_BASE_URL}/Call/ScheduleCall`, {
-      method: "POST",
+    const apiRes = await fetch(`${API_BASE_URL}/Call/event?eventId=${eventId}`, {
+      method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ callType, schedule, startDate, endDate }),
     });
 
     const contentType = apiRes.headers.get("content-type");
@@ -26,14 +24,9 @@ export async function POST(req: NextRequest) {
       : { message: await apiRes.text() };
 
     return NextResponse.json(data, { status: apiRes.status });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (err: any) {
+
+  } catch (err) {
     console.error("Proxy Error:", err);
-    return NextResponse.json(
-      { message: "Internal proxy Error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "Error deleting event" }, { status: 500 });
   }
 }
-
-
