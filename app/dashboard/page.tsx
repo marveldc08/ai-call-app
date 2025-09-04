@@ -1,5 +1,5 @@
 "use client"
-import React,{useEffect, useState} from 'react'
+import React,{useEffect, useState, useCallback} from 'react'
 import Link from 'next/link'
 import { LineChart, lineElementClasses } from '@mui/x-charts/LineChart';
 import Button from '@mui/material/Button';
@@ -27,8 +27,13 @@ const xLabels = [
 
 
 
+type User = {
+  userName: string;
+  // Add other properties if needed, e.g. firstName, lastName, etc.
+};
+
 export default function DashboardPage() {
-    const [user, setUser] = useLocalStorageObject("user", null);
+    const [user, setUser] = useLocalStorageObject<User | null>("user", null);
     const [token, setToken] = useLocalStorageObject("token", null);
     const [collapsed, setCollapsed] = useLocalStorageObject("collapsed", null);
     const [userName, setUserName] = useState("");
@@ -37,16 +42,19 @@ export default function DashboardPage() {
     const [loading, setLoading] = useState(false)
     const [file, setFile] = useState<File | null>(null)
     const [isCollapsed, setIsCollapsed] = useState(false);
-   
-    // useEffect(() => {
-    //   if (user) {
-    //     setUserName(`${user.firstName} ${user.lastName}`);
-    //   } else {
-    //     console.log("No user data found.");
-    //   }
-    // }, [user]);
+    const [callType, setCallType] = useState("");
+    const [startDate, setStartDate] = useState("");
+    const[endDate, setEndDate] = useState("")
+    const [schedule, setSchedule] = useState("");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [stats, setStats] = useState<any>({});
+    
+
 
       useEffect(() => {
+        if (user) {
+          setUserName(user ? `${user.userName}` : "");
+        }
         const stored = localStorage.getItem("collapsed");
         if (stored === "true") {
             setIsCollapsed(true);
@@ -54,73 +62,112 @@ export default function DashboardPage() {
             setIsCollapsed(false);
         }
         
-      }, []);
+      }, [user, ]);
+
+        const getStats = useCallback(async () => {
+          try {
+            const response = await fetch(`/api/events/stats?id=${0}`, {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            });
+      
+            if (!response.ok) {
+              console.log(`Error fetching stats: ${response.status} ${response.text()}`);
+              throw new Error("Failed to fetch stats");
+            }
+      
+            const data = await response.json();
+      
+            return data;
+          } catch (error) {
+            console.error("Error fetching stats:", error);
+            if (error instanceof Error) {
+              console.error("Error fetching stats:", error.message, error.stack);
+            }
+            throw error; // Re-throw the error to handle it in the calling function
+      
+          }
+        }, [token]);
+      
+        useEffect(() => {
+            // setEventPeriod([[startDate, endDate.join(", ")]])
+          if (!token) {
+            console.warn("Token is not available yet.");
+            return;
+          }
+      
+          const fetchEvents = async () => {
+            const statsData = await getStats();
+            if (statsData) {
+              console.log("Fetched events:", statsData);
+              setStats(statsData.data);
+            }
+          };
+      
+          fetchEvents();
 
 
-     const [schedules, setSchedules] = useState<{ interval: string }[]>([
-        { interval: "" },
-      ]);
+      
+        }, [token, getStats]);
+      console.log("Stats data:", stats);
 
-      const addSchedule = (e: React.FormEvent) => {
-        e.preventDefault();
-        setSchedules([...schedules, { interval: "" }]);
-      };
 
-      const updateSchedule = (index: number, value: string) => {
-        const newSchedules = [...schedules];
-        newSchedules[index].interval = value;
-        setSchedules(newSchedules);
-      };
 
-      const removeSchedule = (index: number) => {
-        setSchedules(schedules.filter((_, i) => i !== index));
-      };
 
     const handleSubmitSchedule = async () => {
-      console.log("got here 1")
+ 
       try {
         const res = await fetch("/api/schedules", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ schedules }),
+          body: JSON.stringify({ callType, schedule, startDate, endDate }),
         });
-        console.log("got here")
+   
         const data = await res.json();
         console.log("API response:", data);
 
         if (res.ok) {
-          toast.success("Schedules saved!");
+          toast.success("Schedule saved!");
+          setShowCallModal(false)
            console.error(res);
         } else {
           toast.error("Error: " + data.error);
         }
       } catch (err) {
         console.error(err);
-        toast.error("Failed to save schedules");
+        toast.error("Failed to save schedule");
       }
     };
 
 
     const handleUploadFile = async (file: File | null) => {
       if (!file) return;
+      
 
       const formData = new FormData();
       formData.append("file", file);
 
       setLoading(true);
       try {
-        const res = await fetch("/api/uploads", {
+        const res = await fetch(`/api/uploads?id=${0}`, {
           method: "POST",
           body: formData,
         });
-
+     
         const data = await res.json();
-        console.log("Upload response:", data);
 
         if (res.ok) {
           toast.success("File uploaded: " + data.fileUrl);
+          setShowModal(false)
+          setFile(null);
+          setLoading(false);
         } else {
           toast.error("Upload failed: " + data.error);
+          setShowModal(false)
+          setFile(null);
+          setLoading(false);
         }
       } catch (err) {
         console.error(err);
@@ -145,7 +192,7 @@ export default function DashboardPage() {
                 {[
                   {
                     title: "Total Uploaded",
-                    value: 10000,
+                    value: stats.totalUploaded || 0,
                     border: "primary",
                     icon: "upload",
                     text: "text-primary",
@@ -486,14 +533,21 @@ export default function DashboardPage() {
                     <div className="col-md-12 mb-3">
                     {/* <label>Select Contact File</label> */}
                         <input
-                            style={{height: "18em"}}
+                            style={{height: "20em"}}
                             type="file"
                             className="form-control hidden"
+                            // onChange={(e) => {
+                            // if (e.target.files && e.target.files[0]) {
+                            //     setFile(e.target.files[0]);
+                            // }
+                            // }}
                             onChange={(e) => {
-                            if (e.target.files && e.target.files[0]) {
+                              if (e.target.files && e.target.files[0]) {
                                 setFile(e.target.files[0]);
-                            }
+                                // console.log("Selected file:", e.target.files[0]);
+                              }
                             }}
+
                             required
                         />
                         <label
@@ -502,7 +556,7 @@ export default function DashboardPage() {
                             style={{position: "relative", top:"-11em"}}
                         >
                             <i className="fa fa-upload text-3xl text-gray-600 mb-2" />
-                            <span className="text-gray-600">
+                            <span className="text-gray-600" style={{height: "20em"}}>
                             {file ? file.name : "Click to choose a file"}
                             </span>
                         </label>
@@ -544,13 +598,26 @@ export default function DashboardPage() {
                <form onSubmit={handleSubmitSchedule}>
                   <div className="form-row">
                     <div className="col-md-12 mb-3">
+                      <label>Call Type</label>
+                      <div className="space-y-4 max-h-72 overflow-y-auto pr-2">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type='text'
+                              value={callType}
+                              onChange={(e) => setCallType(e.target.value)}
+                              className="border rounded-lg px-2 py-1 w-full"
+                            />
+                          </div>
+                      </div>
+                    </div>
+                    <div className="col-md-12 mb-3">
                       <label>Select Call Interval</label>
                       <div className="space-y-4 max-h-72 overflow-y-auto pr-2">
-                        {schedules.map((schedule, index) => (
-                          <div key={index} className="flex items-center gap-2">
+                       
+                          <div className="flex items-center gap-2">
                             <select
-                              value={schedule.interval}
-                              onChange={(e) => updateSchedule(index, e.target.value)}
+                              value={schedule}
+                              onChange={(e) => setSchedule( e.target.value)}
                               className="border rounded-lg px-2 py-1 w-full cursor-pointer"
                             >
                               <option value="">-- Select Interval --</option>
@@ -562,25 +629,34 @@ export default function DashboardPage() {
                               <option value="120">Every 2 Hours</option>
                               <option value="daily">Once a Day</option>
                             </select>
-
-                            <button
-                              type="button"
-                              onClick={() => removeSchedule(index)}
-                              className="text-red-500 hover:text-red-700"
-                            >
-                              <i className="fa fa-trash text-2xl text-red-600" />
-                            </button>
                           </div>
-                        ))}
+                        
                       </div>
-
-                      <div className="flex justify-end mt-4">
-                        <button
-                          onClick={addSchedule}
-                          className="flex items-center gap-1 px-6 py-2 btn btn-success"
-                        >
-                          <i className="fa fa-plus text-xl text-white" /> Add Interval
-                        </button>
+                    </div>
+                    <div className="col-md-12 mb-3">
+                      <label>Start Date</label>
+                      <div className="space-y-4 max-h-72 overflow-y-auto pr-2">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type='date'
+                              value={startDate}
+                              onChange={(e) => setStartDate(e.target.value)}
+                              className="border rounded-lg px-2 py-1 w-full"
+                            />
+                          </div>
+                      </div>
+                    </div>
+                    <div className="col-md-12 mb-3">
+                      <label>End Date</label>
+                      <div className="space-y-4 max-h-72 overflow-y-auto pr-2">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type='date'
+                              value={endDate}
+                              onChange={(e) => setEndDate(e.target.value)}
+                              className="border rounded-lg px-2 py-1 w-full"
+                            />
+                          </div>
                       </div>
                     </div>
                   </div>

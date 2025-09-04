@@ -1,22 +1,25 @@
-// app/api/auth/login/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const { name, email, password, confirmPassword } = body;
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
 
   try {
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-    // const token =  req.headers.get("authorization")
+    // const token = req.headers.get("authorization");
+    const eventId = params.id;
+    const parsedEventId = eventId || req.nextUrl.searchParams.get("id");
 
-    const apiRes = await fetch(`${API_BASE_URL}/User/register`, {
-      method: "POST",
+
+
+    if (!eventId) {
+      return NextResponse.json({ message: "Period ID is required" }, { status: 400 });
+    }
+
+    const apiRes = await fetch(`${API_BASE_URL}/api/v1/periods/${parsedEventId}`, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
-        // Authorization: token ?? "",
       },
-      body: JSON.stringify({ name, email, password, confirmPassword }),
     });
 
     const contentType = apiRes.headers.get("content-type");
@@ -33,3 +36,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }
+

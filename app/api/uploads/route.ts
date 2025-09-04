@@ -1,30 +1,36 @@
-import { NextResponse } from "next/server";
-import { writeFile } from "fs/promises";
-import path from "path";
+import { NextResponse, NextRequest } from "next/server";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File;
+    const eventId = req.nextUrl.searchParams.get("id");
 
     if (!file) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
-    // Convert file to Buffer
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    // Build new FormData to send to external API
+    const forwardForm = new FormData();
+    forwardForm.append("file", file, file.name);
 
-    // Save to "public/uploads"
-    const filePath = path.join(process.cwd(), "public", "uploads", file.name);
-    await writeFile(filePath, buffer);
+    console.log("Forwarding file:", file.name, "to event ID:", eventId);
+    const API_BASE_URL = process.env.API_BASE_URL!;
+    const apiRes = await fetch(`${API_BASE_URL}/Call/contacts/${eventId}`, {
+      method: "POST",
+      body: forwardForm, // ✅ let fetch set the correct headers
+    });
+
+    const data = await apiRes.json();
 
     return NextResponse.json({
       message: "File uploaded successfully",
-      fileUrl: `/uploads/${file.name}`,
+      apiResponse: data,
     });
   } catch (error) {
     console.error("Upload error:", error);
     return NextResponse.json({ error: "File upload failed" }, { status: 500 });
   }
 }
+
+

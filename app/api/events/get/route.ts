@@ -1,22 +1,19 @@
-// app/api/auth/login/route.ts
-
+// app/api/users/get-users/route.ts
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const { name, email, password, confirmPassword } = body;
+export async function GET(req: NextRequest) {
+
 
   try {
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-    // const token =  req.headers.get("authorization")
+    const token = req.headers.get("authorization");
 
-    const apiRes = await fetch(`${API_BASE_URL}/User/register`, {
-      method: "POST",
+    const apiRes = await fetch(`${API_BASE_URL}/Call/get-events`, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
-        // Authorization: token ?? "",
+        Authorization: token ?? "",
       },
-      body: JSON.stringify({ name, email, password, confirmPassword }),
     });
 
     const contentType = apiRes.headers.get("content-type");
