@@ -1,19 +1,79 @@
 "use client"
-import React,{ useState} from 'react'
+import React,{ useState, useCallback, useEffect} from 'react'
 import { mainDashBoardStats } from '@/constants/stats';
 import Header from '../../components/Header'
 import CallHistoryChart from '@/components/CallHistoryChart';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useLocalStorageObject } from '../../hooks/useLocalStorage';
+import { toast } from 'react-toastify';
 
 
 
-type User = {
-  userName: string;
-  // Add other properties if needed, e.g. firstName, lastName, etc.
+type Periods =[string]
+
+type Event = {
+  id: number;
+  name: string;
+  location: string;
+  periods: Periods;
 };
-
 export default function DashboardPage() {
 
     const [userName, setUserName] = useState("");
+    const [events, setEvents] = useState<Event[]>([]);
+    const router = useRouter();
+    const [token, setToken] = useLocalStorageObject("token", null);
+
+    
+      const getEvents = useCallback(async () => {
+        try {
+          const response = await fetch('/api/events/get', {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+    
+          if (!response.ok) {
+            console.log(`Error fetching events: ${response.status} ${response.text()}`);
+            throw new Error("Failed to fetch events");
+          }
+    
+          const data = await response.json();
+    
+          return data;
+        } catch (error) {
+          console.error("Error fetching roles:", error);
+          if (error instanceof Error) {
+            console.error("Error fetching roles:", error.message, error.stack);
+          }
+          throw error; // Re-throw the error to handle it in the calling function
+    
+        }
+      }, [token]);
+    
+      useEffect(() => {
+          // setEventPeriod([[startDate, endDate.join(", ")]])
+        if (!token) {
+          console.warn("Token is not available yet.");
+          return;
+        }
+        
+    
+        const fetchEvents = async () => {
+          const eventData = await getEvents();
+          if (eventData) {
+            console.log("Fetched events:", eventData);
+            setEvents(eventData.data.data);
+          }
+        };
+    
+        fetchEvents();
+    
+      }, [token, getEvents]);
+    
+
+
 
   return (
     <div className={` page-container `}>
@@ -98,24 +158,45 @@ export default function DashboardPage() {
                           <thead>
                             <tr>
                               <th>Title </th>
-                              <th>Event Date</th>
-                              <th>Date Created</th>
+                              <th>Location</th>
+                              <th>Periods</th>
                               <th></th>
                             
                             </tr>
                           </thead>
-                          <tbody>
+                          {/* <tbody>
                             {Array.from({ length: 6 }).map((_, index) => (
                               <tr key={index}>
                                 <td>An Evening of Blessings</td>
                                 <td>12/09/2025</td>
                                 <td>01/09/2025</td>
                                 <td>
-                                     <button className="btn btn-sm btn-primary" >View <i className={`fa fa-eye  text-gray-300`} /></button>
+                                     <button className="btn btn-sm btn-primary" onClick={()=> router.push(`/event?eventId=${index}`)} >View <i className={`fa fa-eye  text-gray-300`} /></button>
                                 </td>                     
                               </tr>
                             ))}
-                          </tbody>
+                          </tbody> */}
+
+                            <tbody>
+                                {events.length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} className="text-center py-4 text-gray-500 h-[300px]">
+                                    No events yet.
+                                    </td>
+                                </tr>
+                                ) : (
+                                events.map((event) => (
+                                    <tr key={event.id} className="text-gray-500">
+                                    <td >{event.name}</td>
+                                    <td >{event.location}</td>
+                                    <td >{event.periods?.map((p, idx)=>(<div key={idx}>{p}</div>))}</td>
+                                    <td>
+                                     <button className="btn btn-sm btn-primary" onClick={()=> router.push(`/event?eventId=${event.id}`)} >View <i className={`fa fa-eye  text-gray-300`} /></button>
+                                    </td>
+                                    </tr>
+                                ))
+                                )}
+                            </tbody>
                         </table>
                       </div>
                     </div>
@@ -129,6 +210,7 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
 
     </div>
   );
