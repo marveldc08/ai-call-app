@@ -56,7 +56,8 @@ export default function DashboardPage() {
           // setEventPeriod([[startDate, endDate.join(", ")]])
         if (!token) {
           console.warn("Token is not available yet.");
-          router.push("/login")
+        //   router.push("/login")+
+        
           return;
         }
     
