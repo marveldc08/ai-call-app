@@ -63,7 +63,7 @@ export default function EventPage() {
             setIsCollapsed(false);
         }
         
-      }, [user, ]);
+      }, [user]);
 
         const getStats = useCallback(async () => {
           try {
@@ -96,7 +96,7 @@ export default function EventPage() {
             // setEventPeriod([[startDate, endDate.join(", ")]])
           if (!token) {
             console.warn("Token is not available yet.");
-            router.push('/login')
+            // router.push('/login')
             return;
           }
       
