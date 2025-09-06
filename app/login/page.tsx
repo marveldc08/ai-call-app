@@ -30,9 +30,9 @@ const handleLogin = async (email: string, password: string) => {
     setLoading(true);
     const BASE_URL =  'http://musharealestate-001-site5.jtempurl.com'
   try {
-    const response = await fetch(`${BASE_URL}/User/login`, {
+    const response = await fetch(`/api/auth/login`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json"},
       body: JSON.stringify({ email, password }),
     });
 

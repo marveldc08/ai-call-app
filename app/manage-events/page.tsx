@@ -1,6 +1,7 @@
 "use client";
 
 import { useState ,useEffect, useCallback} from "react";
+import { useRouter } from "next/navigation";
 import Header from '../../components/Header'
 import { useLocalStorageObject } from '../../hooks/useLocalStorage';
 import { toast } from 'react-toastify';
@@ -35,6 +36,14 @@ export default function EventsPage() {
   const [date, setDate] = useState("");
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+
+  const handleUnauthorization = () => {
+     localStorage.clear()
+     router.push('/login');
+}
+
 
 
   const getEvents = useCallback(async () => {
@@ -43,11 +52,16 @@ export default function EventsPage() {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
         },
       });
 
+      if(response.status === 401){
+        handleUnauthorization()
+        return
+      }
+
       if (!response.ok) {
-        console.log(`Error fetching events: ${response.status} ${response.text()}`);
         throw new Error("Failed to fetch events");
       }
 
@@ -99,13 +113,18 @@ export default function EventsPage() {
     try {
       const response = await fetch("/api/events", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({
           name: eventName,
           location: eventLocation,
           periods: [startDate, endDate],
         }),
       });
+
+      if(response.status === 401){
+          handleUnauthorization()
+          return
+        }
 
       const data = await response.json();
 
@@ -147,10 +166,15 @@ export default function EventsPage() {
     try {
       const response = await fetch("/api/events/delete", {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ id }),
       });
 
+      if(response.status === 401){
+          handleUnauthorization()
+          return
+        }
+        
       if (!response.ok) {
         const data = await response.json();
         throw new Error(data.message || "Failed to delete event");
@@ -210,13 +234,13 @@ export default function EventsPage() {
                             </tr>
                           ) : (
                             events.map((event) => (
-                              <tr key={event.id} className="text-gray-500">
-                                <td >{event.name}</td>
-                                <td >{event.location}</td>
-                                <td >{event.periods?.map((p, idx)=>(<div key={idx}>{p}</div>))}</td>
+                              <tr key={event?.id} className="text-gray-500">
+                                <td >{event?.name}</td>
+                                <td >{event?.location}</td>
+                                <td >{event?.periods?.map((p, idx)=>(<div key={idx}>{p}</div>))}</td>
                                 <td >
                                   <button
-                                    onClick={() => handleDelete(event.id)}
+                                    onClick={() => handleDelete(event?.id)}
                                     className="btn btn-danger text-white px-3 py-1 rounded"
                                   >
                                     Delete

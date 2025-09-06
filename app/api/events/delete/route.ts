@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function DELETE(req: NextRequest) {
   const body = await req.json();
   const eventId = body.id;
+  const token = req.headers.get("authorization"); 
   try {
     const API_BASE_URL = process.env.API_BASE_URL;
     if (!API_BASE_URL) {
@@ -15,7 +16,7 @@ export async function DELETE(req: NextRequest) {
 
     const apiRes = await fetch(`${API_BASE_URL}/Call/event?eventId=${eventId}`, {
       method: "DELETE",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", Authorization: token ?? "" },
     });
 
     const contentType = apiRes.headers.get("content-type");

@@ -1,11 +1,12 @@
 "use client"
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React,{useEffect, useState, useCallback} from 'react'
 import { useSearchParams } from 'next/navigation';
 import Header from '../../components/Header'
 import { toast } from 'react-toastify';
 import { useLocalStorageObject } from '../../hooks/useLocalStorage';
 import Image from "next/image";
+import FileUploader from '../../components/FileUploader';
 import {useRouter} from 'next/navigation';
 
 
@@ -40,16 +41,25 @@ export default function EventPage() {
     const [loading, setLoading] = useState(false)
     const [file, setFile] = useState<File | null>(null)
     const [isCollapsed, setIsCollapsed] = useState(false);
-    const [callType, setCallType] = useState("");
+    const [callType, setCallType] = useState(0);
     const [startDate, setStartDate] = useState("");
     const[endDate, setEndDate] = useState("")
     const [schedule, setSchedule] = useState("");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [callResult, setCallResult] = useState<any>({});
+    
+
+    
     const [stats, setStats] = useState<any>({});
     const searchParams = useSearchParams();
     const eventId = searchParams.get("eventId")
     const parsedEventId = eventId ? parseInt(eventId, 10) : 0;
     const router = useRouter()
+
+
+    const handleUnauthorization = () => {
+          localStorage.clear()
+          router.push('/login');
+    }
 
 
       useEffect(() => {
@@ -69,13 +79,13 @@ export default function EventPage() {
           try {
             const response = await fetch(`/api/events/stats?id=${parsedEventId}`, {
               method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-              },
+              headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}`, },
             });
+            if(response?.status === 401){
+               handleUnauthorization()
+             }
       
             if (!response.ok) {
-              console.log(`Error fetching stats: ${response.status} ${response.text()}`);
               throw new Error("Failed to fetch stats");
             }
       
@@ -91,7 +101,55 @@ export default function EventPage() {
       
           }
         }, [token]);
+
+    
+        const getCallResults = useCallback(
+          async () => {
+            try {
+          
+              const response = await fetch(`/api/events/call_results?id=${parsedEventId}`, {
+                method: "GET",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+              });
+
+              if(response?.status === 401){
+               handleUnauthorization()
+             }
+        
+              if (!response.ok) {
+                throw new Error("Failed to fetch contacts");
+              }
+        
+              const data = await response.json();
+              return data;
+            } catch (error) {
+              console.error("Error fetching contacts:", error);
+              throw error;
+            }
+          },
+          [token, parsedEventId]
+        );
+        
       
+        useEffect(() => {
+            // setEventPeriod([[startDate, endDate.join(", ")]])
+          if (!token) {
+            console.warn("Token is not available yet.");
+            return;
+          }
+      
+          const fetchEvents = async () => {
+            const callResult = await getCallResults();
+            if (callResult) {
+               setCallResult(callResult.data);
+            }
+          };
+      
+          fetchEvents();
+        }, [token, getCallResults]);
         useEffect(() => {
             // setEventPeriod([[startDate, endDate.join(", ")]])
           if (!token) {
@@ -103,32 +161,32 @@ export default function EventPage() {
           const fetchEvents = async () => {
             const statsData = await getStats();
             if (statsData) {
-              console.log("Fetched events:", statsData);
               setStats(statsData.data);
             }
           };
       
           fetchEvents();
-
-
-      
         }, [token, getStats]);
-      console.log("Stats data:", stats);
 
-
-
+     
+        
 
     const handleSubmitSchedule = async () => {
  
       try {
         const res = await fetch("/api/schedules", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ callType, schedule, startDate, endDate }),
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}`, },
+          body: JSON.stringify({ callType, schedule, startDate, endDate, eventId: parsedEventId }),
         });
    
         const data = await res.json();
-        console.log("API response:", data);
+
+        if(res?.status === 401){
+          router.push("/login")
+        }
+
+
 
         if (res.ok) {
           toast.success("Schedule saved!");
@@ -142,42 +200,6 @@ export default function EventPage() {
         toast.error("Failed to save schedule");
       }
     };
-
-
-    const handleUploadFile = async (file: File | null) => {
-      if (!file) return;
-      
-
-      const formData = new FormData();
-      formData.append("file", file);
-
-      setLoading(true);
-      try {
-        const res = await fetch(`/api/uploads?id=${0}`, {
-          method: "POST",
-          body: formData,
-        });
-     
-        const data = await res.json();
-
-        if (res.ok) {
-          toast.success("File uploaded: " + data.fileUrl);
-          setShowModal(false)
-          setFile(null);
-          setLoading(false);
-        } else {
-          toast.error("Upload failed: " + data.error);
-          setShowModal(false)
-          setFile(null);
-          setLoading(false);
-        }
-      } catch (err) {
-        console.error(err);
-        toast.error("Error uploading file");
-      }
-    }
-
-
 
 
   return (
@@ -380,6 +402,7 @@ export default function EventPage() {
                         
                     </div>
                 </div>
+               
               </div>
 
               
@@ -431,25 +454,33 @@ export default function EventPage() {
                           id="dataTable"
                           width="100%"
                           cellSpacing="0"
+                          
                         >
                           <thead>
                             <tr>
                               <th>Contact Name</th>
                               <th>Phone Number</th>
-                              <th>Aveg. Call Time</th>
-                              <th>Request</th>
-                              <th>Number Of Times Called</th>
+                              <th>Status</th>
+                              <th>Attendance Confirmed</th>
+                              <th>Landmark</th>
+                              <th>Call Duration</th>
+                              <th>Bus Needed</th>
+                              <th>Prayer Request</th>
+                             
                             
                             </tr>
                           </thead>
                           <tbody>
-                            {Array.from({ length: 6 }).map((_, index) => (
+                            {callResult?.data?.map((result: any,  index: number) => (
                               <tr key={index}>
-                                <td>Felix Troy</td>
-                                <td>0901234567</td>
-                                <td>3.2 miniutes</td>
-                                <td>Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius ea quam optio pariatur culpa temporibus, officia ratione placeat iusto hic quo ducimus repellendus repudiandae</td>
-                                <td>5</td>                            
+                                <td>{result?.name}</td>
+                                <td>{result?.phoneNumber}</td>
+                                <td>{result?.lastStatus}</td>
+                                <td>{result?.isConfirmed === null ? "False": result?.isConfirmed }</td>                            
+                                <td>{result?.lastLocalLandMark === null ? "N/A": result?.lastLocalLandMark}</td>                            
+                                <td>{result?.totalCallDuration}</td>                            
+                                <td>{result?.transportationRequired === null ? "False" : result?.transportationRequired }</td>                            
+                                <td>{result?.prayerRequests === null ? "N/A" : result?.prayerRequests}</td>                            
                               </tr>
                             ))}
                           </tbody>
@@ -457,6 +488,7 @@ export default function EventPage() {
                       </div>
                     </div>
                   </div>
+                  
                 </div>
 
               
@@ -465,7 +497,7 @@ export default function EventPage() {
                     <div className="card-body">
                       <h4 className="header-title">
                        Agents{" "}
-                        <span className="small"> - Last 10</span>
+                        <span className=result"small"> - Last 10</span>
                         <span className="small float-right">
                           <Link href="/period/setup" className="btn-link">
                           
@@ -515,72 +547,7 @@ export default function EventPage() {
       </div>
 
     {showModal && (
-        <div className="modal fade show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
-        <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-            <div className="modal-header">
-                <h5 className="modal-title">Upload Contacts</h5>
-                <button
-                type="button"
-                className="close"
-                onClick={() => setShowModal(false)}
-                >
-                <span>&times;</span>
-                </button>
-            </div>
-            <div className="modal-body">
-                <form>
-    
-                <div className="form-row">
-                    <div className="col-md-12 mb-3">
-                    {/* <label>Select Contact File</label> */}
-                        <input
-                            style={{height: "20em"}}
-                            type="file"
-                            className="form-control hidden"
-                            // onChange={(e) => {
-                            // if (e.target.files && e.target.files[0]) {
-                            //     setFile(e.target.files[0]);
-                            // }
-                            // }}
-                            onChange={(e) => {
-                              if (e.target.files && e.target.files[0]) {
-                                setFile(e.target.files[0]);
-                                // console.log("Selected file:", e.target.files[0]);
-                              }
-                            }}
-
-                            required
-                        />
-                        <label
-                            htmlFor="fileInput"
-                            className="flex flex-col items-center justify-center border-2 border-dashed border-gray-400 rounded-md p-6 w-full text-center cursor-pointer hover:bg-gray-50"
-                            style={{position: "relative", top:"-11em"}}
-                        >
-                            <i className="fa fa-upload text-3xl text-gray-600 mb-2" />
-                            <span className="text-gray-600" style={{height: "20em"}}>
-                            {file ? file.name : "Click to choose a file"}
-                            </span>
-                        </label>
-              
-                    </div>
-                </div>
-            
-                </form>
-            </div>
-            <div className="modal-footer">
-                <button
-                type="submit"
-                className="btn btn-primary btn-block w-100"
-                disabled={loading}
-                onClick={() => handleUploadFile(file)}
-                >
-                <i className="fa fa-upload"></i>&nbsp; {loading ? "Uploading" : "Upload"}
-                </button>
-            </div>
-            </div>
-        </div>
-        </div>
+       <FileUploader setShowModal={setShowModal} eventId={parsedEventId}/>
     )}
     {showCallModal && (
         <div className="modal fade show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
@@ -604,9 +571,9 @@ export default function EventPage() {
                       <div className="space-y-4 max-h-72 overflow-y-auto pr-2">
                           <div className="flex items-center gap-2">
                             <input
-                              type='text'
+                              type='number'
                               value={callType}
-                              onChange={(e) => setCallType(e.target.value)}
+                              onChange={(e) => setCallType(parseInt(e.target.value, 10))}
                               className="border rounded-lg px-2 py-1 w-full"
                             />
                           </div>

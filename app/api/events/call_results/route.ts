@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     const eventId =  req.nextUrl.searchParams.get("id");
     const token = req.headers.get("authorization"); 
 
-    const apiRes = await fetch(`${API_BASE_URL}/Call?eventId=${eventId}`, {
+    const apiRes = await fetch(`${API_BASE_URL}/Call/schedule-call-result/${eventId}`, {
       method: "GET",
       headers: { "Content-Type": "application/json", "Authorization": `${token}`, },
     });
