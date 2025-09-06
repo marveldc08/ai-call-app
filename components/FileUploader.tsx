@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import React, { useState } from "react";
 import { useLocalStorageObject } from "@/hooks/useLocalStorage";
 

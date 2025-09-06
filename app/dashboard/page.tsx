@@ -1,4 +1,6 @@
 "use client"
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React,{ useState, useCallback, useEffect} from 'react'
 import { mainDashBoardStats } from '@/constants/stats';
 import Header from '../../components/Header'

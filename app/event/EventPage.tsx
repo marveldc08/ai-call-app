@@ -1,5 +1,5 @@
 "use client"
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React,{useEffect, useState, useCallback} from 'react'
 import { useSearchParams } from 'next/navigation';
 import Header from '../../components/Header'
@@ -48,7 +48,7 @@ export default function EventPage() {
     const [callResult, setCallResult] = useState<any>({});
     
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    
     const [stats, setStats] = useState<any>({});
     const searchParams = useSearchParams();
     const eventId = searchParams.get("eventId")
