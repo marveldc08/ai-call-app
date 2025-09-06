@@ -21,21 +21,34 @@ export default function DashboardPage() {
 
     const [userName, setUserName] = useState("");
     const [events, setEvents] = useState<Event[]>([]);
+     const [stats, setStats] = useState<any>({});
     const router = useRouter();
     const [token, setToken] = useLocalStorageObject("token", null);
+     const searchParams = useSearchParams();
+        const eventId = searchParams.get("eventId")
+        const parsedEventId = eventId ? parseInt(eventId, 10) : 0;
 
+
+    const handleUnauthorization = () => {
+          localStorage.clear()
+          router.push('/login');
+     }
+
+    
     
       const getEvents = useCallback(async () => {
         try {
           const response = await fetch('/api/events/get', {
             method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}`, },
           });
+
+          if(response.status === 401){
+               handleUnauthorization()
+               return
+           }
     
           if (!response.ok) {
-            console.log(`Error fetching events: ${response.status} ${response.text()}`);
             throw new Error("Failed to fetch events");
           }
     
@@ -51,6 +64,51 @@ export default function DashboardPage() {
     
         }
       }, [token]);
+
+        const getStats = useCallback(async () => {
+                try {
+                  const response = await fetch(`/api/events/stats?id=${parsedEventId}`, {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}`, },
+                  });
+                  if(response?.status === 401){
+                     handleUnauthorization()
+                   }
+            
+                  if (!response.ok) {
+                    throw new Error("Failed to fetch stats");
+                  }
+            
+                  const data = await response.json();
+      
+                  return data;
+                } catch (error) {
+                  console.error("Error fetching stats:", error);
+                  if (error instanceof Error) {
+                    console.error("Error fetching stats:", error.message, error.stack);
+                  }
+                  throw error; // Re-throw the error to handle it in the calling function
+            
+                }
+              }, [token]);
+
+     useEffect(() => {
+            // setEventPeriod([[startDate, endDate.join(", ")]])
+          if (!token) {
+            console.warn("Token is not available yet.");
+            // router.push('/login')
+            return;
+          }
+      
+          const fetchEvents = async () => {
+            const statsData = await getStats();
+            if (statsData) {
+              setStats(statsData.data);
+            }
+          };
+      
+          fetchEvents();
+     }, [token, getStats]);
     
       useEffect(() => {
           // setEventPeriod([[startDate, endDate.join(", ")]])
@@ -64,15 +122,48 @@ export default function DashboardPage() {
         const fetchEvents = async () => {
           const eventData = await getEvents();
           if (eventData) {
-            console.log("Fetched events:", eventData);
             setEvents(eventData.data.data);
-            // setEvents(eventData.data ?? []);
           }
         }
     
         fetchEvents();
     
       }, [token, getEvents]);
+
+
+      const mainDashBoardStats = [
+     
+          {
+               title: "Total Valid Contacts",
+               value: stats?.totalValidContact ?? 0,
+               border: "primary",
+               icon: "user-circle",
+               text: "text-primary",
+               },
+               {
+               title: "Total Minutes",
+               value: stats?.totalCallTime ?? 0,
+               border: "success",
+               icon: "phone",
+               text: "text-success",
+               },
+               {
+               title: "Total Cost",
+               value: `$${stats?.totalCost ?? 0}`,     
+               border: "info",
+               icon: "money",
+               text: "text-info",
+               isProgress: false,
+               },
+               {
+               title: "Current Balance",
+               value: `$${stats?.currentBalance ?? 0}`,
+               border: "warning",
+               icon: "money",
+               text: "text-warning",
+               },  
+          
+     ]
     
 
 
@@ -176,10 +267,10 @@ export default function DashboardPage() {
                                 </tr>
                                 ) : (
                                 events.map((event) => (
-                                    <tr key={event.id} className="text-gray-500">
-                                    <td >{event.name}</td>
-                                    <td >{event.location}</td>
-                                    <td >{event.periods?.map((p, idx)=>(<div key={idx}>{p}</div>))}</td>
+                                    <tr key={event?.id} className="text-gray-500">
+                                    <td >{event?.name}</td>
+                                    <td >{event?.location}</td>
+                                    <td >{event?.periods?.map((p, idx)=>(<div key={idx}>{p}</div>))}</td>
                                     <td>
                                      <button className="btn btn-sm btn-primary" onClick={()=> router.push(`/event?eventId=${event.id}`)} >View <i className={`fa fa-eye  text-gray-300`} /></button>
                                     </td>

@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const { name, location, periods } = body;
+  const token = req.headers.get("authorization"); 
 
   try {
     const API_BASE_URL = process.env.API_BASE_URL;
@@ -16,7 +17,7 @@ export async function POST(req: NextRequest) {
 
     const apiRes = await fetch(`${API_BASE_URL}/Call/event`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", Authorization: token ?? "" },
       body: JSON.stringify({ name, location, periods }),
     });
 

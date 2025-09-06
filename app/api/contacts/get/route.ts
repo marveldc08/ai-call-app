@@ -5,13 +5,17 @@ export async function GET(req: NextRequest) {
 
 
   try {
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-    const eventId =  req.nextUrl.searchParams.get("id");
+    const API_BASE_URL = process.env.API_BASE_URL;
     const token = req.headers.get("authorization"); 
+    const query = req.nextUrl.searchParams.get("q") || "";
+    console.log("Search query:", query);
 
-    const apiRes = await fetch(`${API_BASE_URL}/Call?eventId=${eventId}`, {
+    const apiRes = await fetch(`${API_BASE_URL}/Call/contacts`, {
       method: "GET",
-      headers: { "Content-Type": "application/json", "Authorization": `${token}`, },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token ?? "",
+      },
     });
 
     const contentType = apiRes.headers.get("content-type");
